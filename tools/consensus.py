@@ -819,7 +819,7 @@ of the evidence, even when it strongly points in one direction.""",
             f"[CONSENSUS_METADATA] {self.get_name()}: Using consensus-specific metadata instead of single-model metadata"
         )
 
-    def store_initial_issue(self, step_description: str):
+    def store_initial_issue(self, step_description: str, continuation_id: str | None = None):  # noqa: ARG002
         """Store initial prompt for model consultations."""
         self.original_proposal = step_description
         self.initial_prompt = step_description  # Keep for backward compatibility

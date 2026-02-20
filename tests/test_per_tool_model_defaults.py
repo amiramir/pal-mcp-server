@@ -117,12 +117,7 @@ class TestModelSelection:
             model = ModelProviderRegistry.get_preferred_fallback_model(ToolModelCategory.EXTENDED_REASONING)
             # EXTENDED_REASONING can legitimately map to multiple Gemini fallbacks depending on registry
             # preferences and what models are allowed/available in the environment.
-            assert model in [
-                "gemini-3-pro-preview",
-                "gemini-3-flash-preview",
-                "gemini-2.5-flash",
-                "gemini-2.0-flash",
-            ]
+            assert model in ["gemini-3.1-pro-preview", "gemini-3-pro-preview", "gemini-2.5-flash", "gemini-2.0-flash"]
 
     def test_fast_response_with_openai(self):
         """Test FAST_RESPONSE with OpenAI provider."""

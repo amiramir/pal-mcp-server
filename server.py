@@ -1495,22 +1495,74 @@ async def main():
             f"When no model is mentioned, default to '{DEFAULT_MODEL}'."
         )
 
-    # Run the server using stdio transport (standard input/output)
-    # This allows the server to be launched by MCP clients as a subprocess
-    async with stdio_server() as (read_stream, write_stream):
-        await server.run(
-            read_stream,
-            write_stream,
-            InitializationOptions(
-                server_name="PAL",
-                server_version=__version__,
-                instructions=handshake_instructions,
-                capabilities=ServerCapabilities(
-                    tools=ToolsCapability(),  # Advertise tool support capability
-                    prompts=PromptsCapability(),  # Advertise prompt support capability
-                ),
-            ),
+    init_options = InitializationOptions(
+        server_name="PAL",
+        server_version=__version__,
+        instructions=handshake_instructions,
+        capabilities=ServerCapabilities(
+            tools=ToolsCapability(),
+            prompts=PromptsCapability(),
+        ),
+    )
+
+    transport = os.environ.get("MCP_TRANSPORT", "stdio").lower()
+
+    if transport == "sse":
+        port = int(os.environ.get("MCP_PORT", "4801"))
+        host = os.environ.get("MCP_HOST", "127.0.0.1")
+        logger.info(f"Starting SSE transport on {host}:{port}")
+        await _run_sse(host, port, init_options)
+    else:
+        async with stdio_server() as (read_stream, write_stream):
+            await server.run(read_stream, write_stream, init_options)
+
+
+async def _run_sse(host: str, port: int, init_options):
+    """Run the MCP server with SSE transport via Starlette/uvicorn."""
+    import socket
+
+    try:
+        import uvicorn
+        from mcp.server.sse import SseServerTransport
+        from starlette.applications import Starlette
+        from starlette.responses import Response
+        from starlette.routing import Mount, Route
+    except ImportError as exc:
+        logger.error(
+            f"SSE transport requires additional dependencies: {exc}. "
+            "Install them with: pip install uvicorn starlette"
         )
+        raise SystemExit(1) from exc
+
+    # Fail fast if the port is already in use instead of silently starting
+    # an unreachable server while a stale process holds the port.
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        sock.bind((host, port))
+    except OSError as exc:
+        logger.error(f"Port {port} on {host} is already in use: {exc}")
+        raise SystemExit(1) from exc
+    finally:
+        sock.close()
+
+    sse = SseServerTransport("/messages/")
+
+    async def handle_sse(request):
+        # NOTE: request._send is a Starlette internal; this is the standard
+        # pattern used by the MCP SSE transport but may break on major
+        # Starlette upgrades.
+        async with sse.connect_sse(request.scope, request.receive, request._send) as streams:
+            await server.run(streams[0], streams[1], init_options)
+        return Response()
+
+    app = Starlette(
+        routes=[
+            Route("/sse", endpoint=handle_sse),
+            Mount("/messages/", app=sse.handle_post_message),
+        ]
+    )
+    config = uvicorn.Config(app, host=host, port=port, log_level="info")
+    await uvicorn.Server(config).serve()
 
 
 def run():

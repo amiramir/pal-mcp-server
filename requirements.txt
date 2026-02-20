@@ -1,4 +1,6 @@
 mcp>=1.0.0
+uvicorn>=0.30.0  # Required for SSE transport (MCP_TRANSPORT=sse)
+starlette>=0.37.0  # Required for SSE transport (MCP_TRANSPORT=sse)
 google-genai>=1.19.0
 openai>=1.55.2  # Minimum version for httpx 0.28.0 compatibility
 pydantic>=2.0.0
