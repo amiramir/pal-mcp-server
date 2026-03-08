@@ -438,11 +438,10 @@ class TestAutoModeComprehensive:
 
             # Should NOT include non-restricted OpenAI models
             assert "o3" not in available_models
-            assert "o3-mini" not in available_models
 
             # Should still include all Gemini models (no restrictions)
             assert "gemini-2.5-flash" in available_models
-            assert "gemini-2.5-pro" in available_models
+            assert "gemini-3.1-pro" in available_models
 
     def test_openrouter_fallback_when_no_native_apis(self):
         """Test that OpenRouter provides fallback models when no native APIs are available."""
@@ -476,11 +475,11 @@ class TestAutoModeComprehensive:
             # Mock OpenRouter registry to return known models
             mock_registry = MagicMock()
             mock_registry.list_models.return_value = [
-                "google/gemini-2.5-flash",
-                "google/gemini-2.5-pro",
+                "google/gemini-3-flash-preview",
+                "google/gemini-3-pro-preview",
                 "openai/o3",
                 "openai/o4-mini",
-                "anthropic/claude-opus-4",
+                "anthropic/claude-opus-4-6",
             ]
 
             with patch.object(OpenRouterProvider, "_registry", mock_registry):

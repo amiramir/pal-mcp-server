@@ -44,7 +44,6 @@ class TestOpenAIProvider:
 
         # Test valid models
         assert provider.validate_model_name("o3") is True
-        assert provider.validate_model_name("o3-mini") is True
         assert provider.validate_model_name("o3-pro") is True
         assert provider.validate_model_name("o4-mini") is True
         assert provider.validate_model_name("o4-mini") is True
@@ -56,7 +55,6 @@ class TestOpenAIProvider:
 
         # Test valid aliases
         assert provider.validate_model_name("mini") is True
-        assert provider.validate_model_name("o3mini") is True
         assert provider.validate_model_name("o4mini") is True
         assert provider.validate_model_name("o4mini") is True
         assert provider.validate_model_name("gpt5") is True
@@ -78,7 +76,6 @@ class TestOpenAIProvider:
 
         # Test shorthand resolution
         assert provider._resolve_model_name("mini") == "gpt-5-mini"  # "mini" now resolves to gpt-5-mini
-        assert provider._resolve_model_name("o3mini") == "o3-mini"
         assert provider._resolve_model_name("o4mini") == "o4-mini"
         assert provider._resolve_model_name("o4mini") == "o4-mini"
         assert provider._resolve_model_name("gpt5") == "gpt-5"
@@ -91,7 +88,6 @@ class TestOpenAIProvider:
 
         # Test full name passthrough
         assert provider._resolve_model_name("o3") == "o3"
-        assert provider._resolve_model_name("o3-mini") == "o3-mini"
         assert provider._resolve_model_name("o3-pro") == "o3-pro"
         assert provider._resolve_model_name("o4-mini") == "o4-mini"
         assert provider._resolve_model_name("o4-mini") == "o4-mini"
@@ -207,7 +203,7 @@ class TestOpenAIProvider:
         mock_response.choices = [MagicMock()]
         mock_response.choices[0].message.content = "Test response"
         mock_response.choices[0].finish_reason = "stop"
-        mock_response.model = "gpt-4.1-2025-04-14"  # API returns the resolved model name
+        mock_response.model = "gpt-5"  # API returns the resolved model name
         mock_response.id = "test-id"
         mock_response.created = 1234567890
         mock_response.usage = MagicMock()
@@ -219,29 +215,28 @@ class TestOpenAIProvider:
 
         provider = OpenAIModelProvider("test-key")
 
-        # Call generate_content with alias 'gpt4.1' (resolves to gpt-4.1, supports temperature)
+        # Call generate_content with alias 'gpt5' (resolves to gpt-5, supports temperature)
         result = provider.generate_content(
             prompt="Test prompt",
-            model_name="gpt4.1",
-            temperature=1.0,  # This should be resolved to "gpt-4.1"
+            model_name="gpt5",
+            temperature=1.0,  # This should be resolved to "gpt-5"
         )
 
         # Verify the API was called with the RESOLVED model name
         mock_client.chat.completions.create.assert_called_once()
         call_kwargs = mock_client.chat.completions.create.call_args[1]
 
-        # CRITICAL ASSERTION: The API should receive "gpt-4.1", not "gpt4.1"
-        assert call_kwargs["model"] == "gpt-4.1", f"Expected 'gpt-4.1' but API received '{call_kwargs['model']}'"
+        # CRITICAL ASSERTION: The API should receive "gpt-5", not "gpt5"
+        assert call_kwargs["model"] == "gpt-5", f"Expected 'gpt-5' but API received '{call_kwargs['model']}'"
 
-        # Verify other parameters (gpt-4.1 supports temperature unlike O3/O4 models)
-        assert call_kwargs["temperature"] == 1.0
+        # Verify other parameters
         assert len(call_kwargs["messages"]) == 1
         assert call_kwargs["messages"][0]["role"] == "user"
         assert call_kwargs["messages"][0]["content"] == "Test prompt"
 
         # Verify response
         assert result.content == "Test response"
-        assert result.model_name == "gpt-4.1"  # Should be the resolved name
+        assert result.model_name == "gpt-5"  # Should be the resolved name
 
     @patch("providers.openai_compatible.OpenAI")
     def test_generate_content_other_aliases(self, mock_openai_class):
@@ -261,12 +256,6 @@ class TestOpenAIProvider:
 
         provider = OpenAIModelProvider("test-key")
 
-        # Test o3mini -> o3-mini
-        mock_response.model = "o3-mini"
-        provider.generate_content(prompt="Test", model_name="o3mini", temperature=1.0)
-        call_kwargs = mock_client.chat.completions.create.call_args[1]
-        assert call_kwargs["model"] == "o3-mini"
-
         # Test o4mini -> o4-mini
         mock_response.model = "o4-mini"
         provider.generate_content(prompt="Test", model_name="o4mini", temperature=1.0)
@@ -283,7 +272,7 @@ class TestOpenAIProvider:
         mock_response.choices = [MagicMock()]
         mock_response.choices[0].message.content = "Test response"
         mock_response.choices[0].finish_reason = "stop"
-        mock_response.model = "o3-mini"
+        mock_response.model = "o4-mini"
         mock_response.usage = MagicMock()
         mock_response.usage.prompt_tokens = 10
         mock_response.usage.completion_tokens = 5
@@ -292,10 +281,10 @@ class TestOpenAIProvider:
 
         provider = OpenAIModelProvider("test-key")
 
-        # Test full model name passes through unchanged (use o3-mini since o3-pro has special handling)
-        provider.generate_content(prompt="Test", model_name="o3-mini", temperature=1.0)
+        # Test full model name passes through unchanged (use o4-mini since o3-pro has special handling)
+        provider.generate_content(prompt="Test", model_name="o4-mini", temperature=1.0)
         call_kwargs = mock_client.chat.completions.create.call_args[1]
-        assert call_kwargs["model"] == "o3-mini"  # Should be unchanged
+        assert call_kwargs["model"] == "o4-mini"  # Should be unchanged
 
     def test_extended_thinking_capabilities(self):
         """Thinking-mode support should be reflected via ModelCapabilities."""
@@ -316,7 +305,7 @@ class TestOpenAIProvider:
         for alias in supported_aliases:
             assert provider.get_capabilities(alias).supports_extended_thinking is True
 
-        unsupported_aliases = ["o3", "o3-mini", "o4-mini"]
+        unsupported_aliases = ["o3", "o4-mini"]
         for alias in unsupported_aliases:
             assert provider.get_capabilities(alias).supports_extended_thinking is False
 
@@ -370,7 +359,7 @@ class TestOpenAIProvider:
         mock_response.choices = [MagicMock()]
         mock_response.choices[0].message.content = "Test response"
         mock_response.choices[0].finish_reason = "stop"
-        mock_response.model = "o3-mini"
+        mock_response.model = "o4-mini"
         mock_response.id = "test-id"
         mock_response.created = 1234567890
         mock_response.usage = MagicMock()
@@ -381,12 +370,12 @@ class TestOpenAIProvider:
 
         provider = OpenAIModelProvider("test-key")
 
-        # Generate content with o3-mini (not o3-pro)
-        result = provider.generate_content(prompt="Test prompt", model_name="o3-mini", temperature=1.0)
+        # Generate content with o4-mini (not o3-pro)
+        result = provider.generate_content(prompt="Test prompt", model_name="o4-mini", temperature=1.0)
 
         # Verify chat.completions.create was called
         mock_client.chat.completions.create.assert_called_once()
 
         # Verify the response
         assert result.content == "Test response"
-        assert result.model_name == "o3-mini"
+        assert result.model_name == "o4-mini"

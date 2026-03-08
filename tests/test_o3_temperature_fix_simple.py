@@ -31,7 +31,7 @@ class TestO3TemperatureParameterFixSimple:
         mock_response.choices = [Mock()]
         mock_response.choices[0].message.content = "Test response"
         mock_response.choices[0].finish_reason = "stop"
-        mock_response.model = "o3-mini"
+        mock_response.model = "o4-mini"
         mock_response.id = "test-id"
         mock_response.created = 1234567890
         mock_response.usage = Mock()
@@ -50,7 +50,7 @@ class TestO3TemperatureParameterFixSimple:
         provider.validate_model_name = lambda name: True
 
         # Call generate_content with O3 model
-        provider.generate_content(prompt="Test prompt", model_name="o3-mini", temperature=0.5, max_output_tokens=100)
+        provider.generate_content(prompt="Test prompt", model_name="o4-mini", temperature=0.5, max_output_tokens=100)
 
         # Verify the API call was made without temperature or max_tokens
         mock_client.chat.completions.create.assert_called_once()
@@ -58,7 +58,7 @@ class TestO3TemperatureParameterFixSimple:
 
         assert "temperature" not in call_kwargs, "O3 models should not include temperature parameter"
         assert "max_tokens" not in call_kwargs, "O3 models should not include max_tokens parameter"
-        assert call_kwargs["model"] == "o3-mini"
+        assert call_kwargs["model"] == "o4-mini"
         assert "messages" in call_kwargs
 
     @patch("utils.model_restrictions.get_restriction_service")
@@ -79,7 +79,7 @@ class TestO3TemperatureParameterFixSimple:
         mock_response.choices = [Mock()]
         mock_response.choices[0].message.content = "Test response"
         mock_response.choices[0].finish_reason = "stop"
-        mock_response.model = "gpt-4.1-2025-04-14"
+        mock_response.model = "gpt-5"
         mock_response.id = "test-id"
         mock_response.created = 1234567890
         mock_response.usage = Mock()
@@ -97,18 +97,20 @@ class TestO3TemperatureParameterFixSimple:
         # Override model validation to bypass restrictions
         provider.validate_model_name = lambda name: True
 
-        # Call generate_content with regular model (use supported model)
+        # Call generate_content with regular model (gpt-5 has fixed temperature=1.0)
         provider.generate_content(
-            prompt="Test prompt", model_name="gpt-4.1-2025-04-14", temperature=0.5, max_output_tokens=100
+            prompt="Test prompt", model_name="gpt-5", temperature=0.5, max_output_tokens=100
         )
 
-        # Verify the API call was made WITH temperature and max_tokens
+        # Verify the API call was made WITH temperature (adjusted to fixed value)
+        # and max_tokens - unlike O3/O4 models which exclude these entirely
         mock_client.chat.completions.create.assert_called_once()
         call_kwargs = mock_client.chat.completions.create.call_args[1]
 
-        assert call_kwargs["temperature"] == 0.5, "Regular models should include temperature parameter"
+        assert "temperature" in call_kwargs, "Regular models should include temperature parameter"
+        assert call_kwargs["temperature"] == 1.0, "GPT-5 has fixed temperature constraint at 1.0"
         assert call_kwargs["max_tokens"] == 100, "Regular models should include max_tokens parameter"
-        assert call_kwargs["model"] == "gpt-4.1-2025-04-14"
+        assert call_kwargs["model"] == "gpt-5"
 
     @patch("utils.model_restrictions.get_restriction_service")
     @patch("providers.openai_compatible.OpenAI")
@@ -185,7 +187,7 @@ class TestO3TemperatureParameterFixSimple:
         provider = OpenAIModelProvider(api_key="test-key")
 
         # Test O3/O4 models that should NOT support temperature parameter
-        o3_o4_models = ["o3", "o3-mini", "o3-pro", "o4-mini"]
+        o3_o4_models = ["o3", "o4-mini", "o3-pro", "o4-mini"]
 
         for model in o3_o4_models:
             capabilities = provider.get_capabilities(model)
@@ -195,7 +197,7 @@ class TestO3TemperatureParameterFixSimple:
             assert capabilities.supports_temperature is False, f"Model {model} should have supports_temperature=False"
 
         # Test that regular models DO support temperature parameter
-        regular_models = ["gpt-4.1-2025-04-14"]
+        regular_models = ["gpt-5"]
 
         for model in regular_models:
             try:
@@ -221,7 +223,7 @@ class TestO3TemperatureParameterFixSimple:
         provider = OpenAIModelProvider(api_key="test-key")
 
         # Test O3 model constraints
-        o3_capabilities = provider.get_capabilities("o3-mini")
+        o3_capabilities = provider.get_capabilities("o4-mini")
         assert o3_capabilities.temperature_constraint is not None
 
         # O3 models should have fixed temperature constraint
@@ -229,11 +231,11 @@ class TestO3TemperatureParameterFixSimple:
         assert temp_constraint.validate(1.0) is True
         assert temp_constraint.validate(0.5) is False
 
-        # Test regular model constraints - use gpt-4.1 which is supported
-        gpt41_capabilities = provider.get_capabilities("gpt-4.1")
-        assert gpt41_capabilities.temperature_constraint is not None
+        # Test regular model constraints - use gpt-5-codex which supports temperature range
+        codex_capabilities = provider.get_capabilities("gpt-5-codex")
+        assert codex_capabilities.temperature_constraint is not None
 
-        # Regular models should allow a range
-        temp_constraint = gpt41_capabilities.temperature_constraint
+        # Regular models with range constraint should allow a range
+        temp_constraint = codex_capabilities.temperature_constraint
         assert temp_constraint.validate(0.5) is True
         assert temp_constraint.validate(1.0) is True

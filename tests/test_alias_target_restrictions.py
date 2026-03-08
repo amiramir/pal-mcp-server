@@ -26,9 +26,9 @@ class TestAliasTargetRestrictions:
 
         # Should include both aliases and their targets
         assert "mini" in all_known  # alias
-        assert "o4-mini" in all_known  # target of 'mini'
-        assert "o3mini" in all_known  # alias
-        assert "o3-mini" in all_known  # target of 'o3mini'
+        assert "gpt-5-mini" in all_known  # target of 'mini'
+        assert "o4mini" in all_known  # alias
+        assert "o4-mini" in all_known  # target of 'o4mini'
 
     def test_gemini_alias_target_validation_comprehensive(self):
         """Test Gemini provider includes both aliases and targets in validation."""
@@ -39,9 +39,9 @@ class TestAliasTargetRestrictions:
 
         # Should include both aliases and their targets
         assert "flash" in all_known  # alias
-        assert "gemini-2.5-flash" in all_known  # target of 'flash'
+        assert "gemini-3-flash-preview" in all_known  # target of 'flash'
         assert "pro" in all_known  # alias
-        assert "gemini-2.5-pro" in all_known  # target of 'pro'
+        assert "gemini-3.1-pro" in all_known  # target of 'pro'
 
     @patch.dict(os.environ, {"OPENAI_ALLOWED_MODELS": "o4-mini"})  # Allow target
     def test_restriction_policy_allows_alias_when_target_allowed(self):
@@ -282,7 +282,7 @@ class TestAliasTargetRestrictions:
 
         # Other models should be blocked
         assert not provider.validate_model_name("o3")
-        assert not provider.validate_model_name("o3-mini")
+        assert not provider.validate_model_name("gpt-5")
 
     def test_critical_regression_validation_sees_alias_targets(self):
         """CRITICAL REGRESSION TEST: Ensure validation can see alias target models.
@@ -292,12 +292,12 @@ class TestAliasTargetRestrictions:
         to miss restrictions on target model names.
 
         Before the fix:
-        - list_models() returned ["mini", "o3mini"] (aliases only)
-        - validate_against_known_models() only checked against ["mini", "o3mini"]
+        - list_models() returned ["mini", "o4mini"] (aliases only)
+        - validate_against_known_models() only checked against ["mini", "o4mini"]
         - A restriction on "o4-mini" (target) would not be recognized as valid
 
         After the fix:
-        - list_models(respect_restrictions=False, include_aliases=True, lowercase=True, unique=True) returns ["mini", "o3mini", "o4-mini", "o3-mini"] (aliases + targets)
+        - list_models(respect_restrictions=False, include_aliases=True, lowercase=True, unique=True) returns ["mini", "o4mini", "gpt-5-mini", "o4-mini"] (aliases + targets)
         - validate_against_known_models() checks against all names
         - A restriction on "o4-mini" is recognized as valid
         """
@@ -313,9 +313,9 @@ class TestAliasTargetRestrictions:
 
         # Critical check: should contain both aliases and their targets
         assert "mini" in all_known  # alias
-        assert "o4-mini" in all_known  # target of mini - THIS WAS MISSING BEFORE
-        assert "o3mini" in all_known  # alias
-        assert "o3-mini" in all_known  # target of o3mini - THIS WAS MISSING BEFORE
+        assert "gpt-5-mini" in all_known  # target of mini - THIS WAS MISSING BEFORE
+        assert "o4mini" in all_known  # alias
+        assert "o4-mini" in all_known  # target of o4mini - THIS WAS MISSING BEFORE
 
         # Simulate restriction validation with a target model name
         # This should NOT warn because "o4-mini" is a valid target
@@ -362,7 +362,7 @@ class TestAliasTargetRestrictions:
         it appear that target-based restrictions don't work.
         """
         # Test with a made-up restriction scenario
-        with patch.dict(os.environ, {"OPENAI_ALLOWED_MODELS": "o4-mini,o3-mini"}):
+        with patch.dict(os.environ, {"OPENAI_ALLOWED_MODELS": "o4-mini,o3-pro"}):
             # Clear cached restriction service
             import utils.model_restrictions
 
@@ -376,7 +376,7 @@ class TestAliasTargetRestrictions:
                 respect_restrictions=False, include_aliases=True, lowercase=True, unique=True
             )
             assert "o4-mini" in all_known, "Target model o4-mini should be known"
-            assert "o3-mini" in all_known, "Target model o3-mini should be known"
+            assert "o3-pro" in all_known, "Target model o3-pro should be known"
 
             # Validation should not warn about these being unrecognized
             with patch("utils.model_restrictions.logger") as mock_logger:
@@ -387,10 +387,10 @@ class TestAliasTargetRestrictions:
                 all_warnings = [str(call) for call in mock_logger.warning.call_args_list]
                 for warning in all_warnings:
                     assert "o4-mini" not in warning or "not a recognized" not in warning
-                    assert "o3-mini" not in warning or "not a recognized" not in warning
+                    assert "o3-pro" not in warning or "not a recognized" not in warning
 
             # The restriction should actually work
             assert provider.validate_model_name("o4-mini")
-            assert provider.validate_model_name("o3-mini")
-            assert not provider.validate_model_name("o3-pro")  # not in allowed list
+            assert provider.validate_model_name("o3-pro")
+            assert not provider.validate_model_name("gpt-5")  # not in allowed list
             assert not provider.validate_model_name("o3")  # not in allowed list

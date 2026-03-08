@@ -87,9 +87,9 @@ class TestCustomProvider:
         provider = CustomProvider(api_key="test-key", base_url="http://localhost:11434/v1")
 
         # Test that aliases resolve properly
-        # "llama" now resolves to "meta-llama/llama-3-70b" (the OpenRouter model)
-        resolved = provider._resolve_model_name("llama")
-        assert resolved == "meta-llama/llama-3-70b"
+        # "deepseek" resolves to "deepseek/deepseek-r1-0528" (the OpenRouter model)
+        resolved = provider._resolve_model_name("deepseek")
+        assert resolved == "deepseek/deepseek-r1-0528"
 
         # Test local model alias
         resolved_local = provider._resolve_model_name("local-llama")
@@ -117,7 +117,7 @@ class TestCustomProvider:
         # Call with an alias
         result = provider.generate_content(
             prompt="test prompt",
-            model_name="llama",
+            model_name="deepseek",
             temperature=0.7,  # This is an alias
         )
 
@@ -173,7 +173,7 @@ class TestCustomProviderRegistration:
             {
                 "OPENROUTER_API_KEY": "test-openrouter-key",
                 "CUSTOM_API_PLACEHOLDER": "configured",
-                "OPENROUTER_ALLOWED_MODELS": "llama,anthropic/claude-opus-4.1",
+                "OPENROUTER_ALLOWED_MODELS": "deepseek,anthropic/claude-opus-4-6",
             },
             clear=True,
         ):
@@ -216,8 +216,8 @@ class TestCustomProviderRegistration:
             custom_provider = custom_provider_factory()
             openrouter_provider = OpenRouterProvider(api_key="test-openrouter-key")
 
-            assert not custom_provider.validate_model_name("llama")
-            assert openrouter_provider.validate_model_name("llama")
+            assert not custom_provider.validate_model_name("deepseek")
+            assert openrouter_provider.validate_model_name("deepseek")
 
 
 class TestConfigureProvidersFunction:

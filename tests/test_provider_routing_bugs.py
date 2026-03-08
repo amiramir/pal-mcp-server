@@ -94,7 +94,7 @@ class TestProviderRoutingBugs:
             )
 
             # Test common aliases that should all route to OpenRouter
-            test_models = ["flash", "pro", "o3", "o3-mini", "o4-mini"]
+            test_models = ["flash", "pro", "o3", "o4-mini"]
             for model_name in test_models:
                 provider = tool.get_model_provider(model_name)
                 assert provider is not None, f"Should find provider for '{model_name}'"
@@ -269,7 +269,7 @@ class TestOpenRouterAliasRestrictions:
             os.environ.pop("OPENAI_API_KEY", None)
             os.environ.pop("XAI_API_KEY", None)
             os.environ["OPENROUTER_API_KEY"] = "test-key"
-            os.environ["OPENROUTER_ALLOWED_MODELS"] = "o3-mini,pro,gpt4.1,flash,o4-mini,o3"  # User's exact config
+            os.environ["OPENROUTER_ALLOWED_MODELS"] = "pro,gpt5,flash,o4-mini,o3"  # User's exact config
 
             # Register OpenRouter provider
             from providers.openrouter import OpenRouterProvider
@@ -286,18 +286,17 @@ class TestOpenRouterAliasRestrictions:
             )
 
             # Expected aliases that should resolve to models:
-            # o3-mini -> openai/o3-mini
             # pro -> google/gemini-3-pro-preview
-            # flash -> google/gemini-3-flash-preview (changed from gemini-2.5-flash)
+            # gpt5 -> openai/gpt-5
+            # flash -> google/gemini-3-flash-preview
             # o4-mini -> openai/o4-mini
             # o3 -> openai/o3
-            # gpt4.1 -> should not exist (expected to be filtered out)
 
-            expected_models = {"o3-mini", "pro", "flash", "o4-mini", "o3"}
+            expected_models = {"pro", "gpt5", "flash", "o4-mini", "o3"}
 
             available_model_names = set(available_models.keys())
 
-            # Should have at least the resolvable aliases (5 out of 6)
+            # Should have at least the resolvable aliases (5 out of 5)
             assert len(available_model_names) >= 5, (
                 f"Expected at least 5 models from alias restrictions, got {len(available_model_names)}: "
                 f"{available_model_names}"
@@ -338,7 +337,7 @@ class TestOpenRouterAliasRestrictions:
             os.environ.pop("OPENAI_API_KEY", None)
             os.environ.pop("XAI_API_KEY", None)
             os.environ["OPENROUTER_API_KEY"] = "test-key"
-            os.environ["OPENROUTER_ALLOWED_MODELS"] = "o3-mini,anthropic/claude-opus-4.1,flash"
+            os.environ["OPENROUTER_ALLOWED_MODELS"] = "o4-mini,anthropic/claude-opus-4-6,flash"
 
             # Register OpenRouter provider
             from providers.openrouter import OpenRouterProvider
@@ -349,9 +348,9 @@ class TestOpenRouterAliasRestrictions:
             available_models = ModelProviderRegistry.get_available_models(respect_restrictions=True)
 
             expected_models = {
-                "o3-mini",  # alias
-                "openai/o3-mini",  # canonical
-                "anthropic/claude-opus-4.1",  # full name
+                "o4-mini",  # alias
+                "openai/o4-mini",  # canonical
+                "anthropic/claude-opus-4-6",  # full name
                 "flash",  # alias
                 "google/gemini-3-flash-preview",  # canonical (flash now points to Gemini 3 Flash)
             }

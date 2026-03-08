@@ -60,7 +60,7 @@ class TestAutoModeProviderSelection:
 
             # Should select appropriate Gemini models
             # Note: Gemini 3 Flash has higher intelligence score (17) than Gemini 2.5 Flash (10)
-            assert extended_reasoning in ["gemini-3.1-pro", "gemini-3-pro-preview", "gemini-2.5-pro", "pro"]
+            assert extended_reasoning in ["gemini-3.1-pro", "pro"]
             assert fast_response in ["gemini-3-flash-preview", "gemini-2.5-flash", "flash"]
             assert balanced in ["gemini-3-flash-preview", "gemini-2.5-flash", "flash"]
 
@@ -227,7 +227,6 @@ class TestAutoModeProviderSelection:
 
             # Should NOT include restricted OpenAI models
             assert "o3" not in available_models
-            assert "o3-mini" not in available_models
 
             # Should include all Gemini models (no restrictions)
             assert "gemini-2.5-flash" in available_models
@@ -325,7 +324,6 @@ class TestAutoModeProviderSelection:
                 ("flash2.5", ProviderType.GOOGLE, "gemini-2.5-flash"),  # "flash2.5" for legacy Gemini 2.5 Flash
                 ("pro", ProviderType.GOOGLE, "gemini-3.1-pro"),  # "pro" now resolves to gemini-3.1-pro
                 ("mini", ProviderType.OPENAI, "gpt-5-mini"),  # "mini" now resolves to gpt-5-mini
-                ("o3mini", ProviderType.OPENAI, "o3-mini"),
                 ("grok", ProviderType.XAI, "grok-4"),
                 ("grok-4.1-fast-reasoning", ProviderType.XAI, "grok-4-1-fast-reasoning"),
             ]
