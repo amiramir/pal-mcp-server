@@ -51,10 +51,11 @@
     },
     {
       "model_name": "gemini-3-flash-preview",
-      "friendly_name": "Gemini 3 Flash Preview",
+      "friendly_name": "Gemini 3.0 Flash",
       "aliases": [
         "flash",
         "flash3",
+        "3.0-flash",
         "gemini-3-flash",
         "gemini-flash"
       ],
@@ -71,6 +72,29 @@
       "supports_images": true,
       "supports_temperature": true,
       "allow_code_generation": false,
+      "max_image_size_mb": 20.0
+    },
+    {
+      "model_name": "gemini-3.1-flash-lite-preview",
+      "friendly_name": "Gemini 3.1 Flash Lite",
+      "aliases": [
+        "flash-lite",
+        "flashlite",
+        "3.1-flash-lite",
+        "gemini-flash-lite"
+      ],
+      "intelligence_score": 12,
+      "description": "Frontier-class performance at a fraction of the cost (1M context) - High volume, low latency tasks",
+      "context_window": 1048576,
+      "max_output_tokens": 65536,
+      "max_thinking_tokens": 32768,
+      "supports_extended_thinking": true,
+      "supports_system_prompts": true,
+      "supports_streaming": true,
+      "supports_function_calling": true,
+      "supports_json_mode": true,
+      "supports_images": true,
+      "supports_temperature": true,
       "max_image_size_mb": 20.0
     },
     {

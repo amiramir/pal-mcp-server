@@ -58,12 +58,13 @@
       "intelligence_score": 13
     },
     {
-      "model_name": "google/gemini-3-pro-preview",
+      "model_name": "google/gemini-3.1-pro-preview",
       "aliases": [
         "pro",
         "gemini-pro",
         "gemini",
         "gemini3",
+        "gemini3.1",
         "pro-openrouter"
       ],
       "context_window": 1048576,
@@ -74,14 +75,15 @@
       "supports_images": true,
       "max_image_size_mb": 20.0,
       "allow_code_generation": true,
-      "description": "Google's Gemini 3.0 Pro via OpenRouter with vision",
-      "intelligence_score": 18
+      "description": "Google's Gemini 3.1 Pro via OpenRouter with vision and advanced reasoning",
+      "intelligence_score": 19
     },
     {
       "model_name": "google/gemini-3-flash-preview",
       "aliases": [
         "flash",
         "flash3",
+        "3.0-flash",
         "gemini3-flash",
         "gemini-flash",
         "flash-openrouter"
@@ -93,8 +95,27 @@
       "supports_function_calling": true,
       "supports_images": true,
       "max_image_size_mb": 20.0,
-      "description": "Google's Gemini 3 Flash via OpenRouter - Pro-level reasoning with Flash latency",
+      "description": "Google's Gemini 3.0 Flash via OpenRouter - Pro-level reasoning with Flash latency",
       "intelligence_score": 17
+    },
+    {
+      "model_name": "google/gemini-3.1-flash-lite-preview",
+      "aliases": [
+        "flash-lite",
+        "flashlite",
+        "3.1-flash-lite",
+        "gemini-flash-lite",
+        "flash-lite-openrouter"
+      ],
+      "context_window": 1048576,
+      "max_output_tokens": 65536,
+      "supports_extended_thinking": true,
+      "supports_json_mode": true,
+      "supports_function_calling": true,
+      "supports_images": true,
+      "max_image_size_mb": 20.0,
+      "description": "Google's Gemini 3.1 Flash Lite via OpenRouter - Frontier-class at lowest cost",
+      "intelligence_score": 12
     },
     {
       "model_name": "mistralai/mistral-large-2411",

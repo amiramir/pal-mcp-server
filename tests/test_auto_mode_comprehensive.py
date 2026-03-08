@@ -476,7 +476,7 @@ class TestAutoModeComprehensive:
             mock_registry = MagicMock()
             mock_registry.list_models.return_value = [
                 "google/gemini-3-flash-preview",
-                "google/gemini-3-pro-preview",
+                "google/gemini-3.1-pro-preview",
                 "openai/o3",
                 "openai/o4-mini",
                 "anthropic/claude-opus-4-6",

@@ -161,7 +161,7 @@ class TestOpenRouterAutoMode:
 
         mock_registry = Mock()
         model_names = [
-            "google/gemini-3-pro-preview",
+            "google/gemini-3.1-pro-preview",
             "google/gemini-3-flash-preview",
             "openai/o3",
             "openai/o4-mini",
@@ -214,7 +214,7 @@ class TestOpenRouterAutoMode:
         mock_registry = Mock()
         mock_models = [
             "google/gemini-3-flash-preview",
-            "google/gemini-3-pro-preview",
+            "google/gemini-3.1-pro-preview",
             "anthropic/claude-opus-4-6",
             "anthropic/claude-sonnet-4-6",
         ]
