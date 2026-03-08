@@ -26,8 +26,8 @@
   },
   "models": [
     {
-      "model_name": "gemini-3.1-pro-preview",
-      "friendly_name": "Gemini Pro 3.1 Preview",
+      "model_name": "gemini-3.1-pro",
+      "friendly_name": "Gemini Pro 3.1",
       "aliases": [
         "pro",
         "gemini3.1",
@@ -36,6 +36,27 @@
       ],
       "intelligence_score": 19,
       "description": "Advanced reasoning + thinking mode (1M context) - Complex problem-solving, agentic workflows, deep analysis",
+      "context_window": 1048576,
+      "max_output_tokens": 65536,
+      "max_thinking_tokens": 32768,
+      "supports_extended_thinking": true,
+      "supports_system_prompts": true,
+      "supports_streaming": true,
+      "supports_function_calling": true,
+      "supports_json_mode": true,
+      "supports_images": true,
+      "supports_temperature": true,
+      "allow_code_generation": true,
+      "max_image_size_mb": 32.0
+    },
+    {
+      "model_name": "gemini-3.1-pro-preview",
+      "friendly_name": "Gemini Pro 3.1 Preview",
+      "aliases": [
+        "gemini3.1-preview"
+      ],
+      "intelligence_score": 18,
+      "description": "Preview version of Gemini 3.1 Pro (1M context) - Superseded by gemini-3.1-pro GA",
       "context_window": 1048576,
       "max_output_tokens": 65536,
       "max_thinking_tokens": 32768,

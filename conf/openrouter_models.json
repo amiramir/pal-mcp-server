@@ -25,10 +25,10 @@
   },
   "models": [
     {
-      "model_name": "anthropic/claude-opus-4.5",
+      "model_name": "anthropic/claude-opus-4-6",
       "aliases": [
         "opus",
-        "opus4.5",
+        "opus4.6",
         "claude-opus"
       ],
       "context_window": 200000,
@@ -38,13 +38,43 @@
       "supports_function_calling": false,
       "supports_images": true,
       "max_image_size_mb": 5.0,
-      "description": "Claude Opus 4.5 - Anthropic's frontier reasoning model for complex software engineering and agentic workflows",
-      "intelligence_score": 18
+      "description": "Claude Opus 4.6 - Anthropic's frontier reasoning model for complex software engineering and agentic workflows",
+      "intelligence_score": 19
+    },
+    {
+      "model_name": "anthropic/claude-sonnet-4-6",
+      "aliases": [
+        "sonnet",
+        "sonnet4.6"
+      ],
+      "context_window": 200000,
+      "max_output_tokens": 64000,
+      "supports_extended_thinking": false,
+      "supports_json_mode": false,
+      "supports_function_calling": false,
+      "supports_images": true,
+      "max_image_size_mb": 5.0,
+      "description": "Claude Sonnet 4.6 - High-performance model with exceptional reasoning and efficiency",
+      "intelligence_score": 13
+    },
+    {
+      "model_name": "anthropic/claude-opus-4.5",
+      "aliases": [
+        "opus4.5"
+      ],
+      "context_window": 200000,
+      "max_output_tokens": 64000,
+      "supports_extended_thinking": false,
+      "supports_json_mode": false,
+      "supports_function_calling": false,
+      "supports_images": true,
+      "max_image_size_mb": 5.0,
+      "description": "Claude Opus 4.5 - Previous generation frontier reasoning model",
+      "intelligence_score": 17
     },
     {
       "model_name": "anthropic/claude-sonnet-4.5",
       "aliases": [
-        "sonnet",
         "sonnet4.5"
       ],
       "context_window": 200000,
@@ -54,8 +84,8 @@
       "supports_function_calling": false,
       "supports_images": true,
       "max_image_size_mb": 5.0,
-      "description": "Claude Sonnet 4.5 - High-performance model with exceptional reasoning and efficiency",
-      "intelligence_score": 12
+      "description": "Claude Sonnet 4.5 - Previous generation high-performance model",
+      "intelligence_score": 11
     },
     {
       "model_name": "anthropic/claude-opus-4.1",
