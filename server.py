@@ -1529,8 +1529,7 @@ async def _run_sse(host: str, port: int, init_options):
         from starlette.routing import Mount, Route
     except ImportError as exc:
         logger.error(
-            f"SSE transport requires additional dependencies: {exc}. "
-            "Install them with: pip install uvicorn starlette"
+            f"SSE transport requires additional dependencies: {exc}. Install them with: pip install uvicorn starlette"
         )
         raise SystemExit(1) from exc
 

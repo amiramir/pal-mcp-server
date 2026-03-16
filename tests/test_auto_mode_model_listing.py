@@ -139,7 +139,7 @@ def test_error_listing_respects_env_restrictions(monkeypatch, reset_registry):
     assert payload["status"] == "error"
 
     available_models = _extract_available_models(payload["content"])
-    assert set(available_models) == {"gemini-3.1-pro", "gpt-5.2", "deepseek", "deepseek/deepseek-r1-0528"}
+    assert set(available_models) == {"gemini-3.1-pro", "gpt-5.2", "deepseek", "deepseek/deepseek-v3.2"}
 
 
 @pytest.mark.no_mock_provider

@@ -49,13 +49,13 @@ class TestListModelsRestrictions(unittest.TestCase):
             aliases=["sonnet"],
         )
         deepseek_caps = make_capabilities(
-            "deepseek/deepseek-r1-0528:free",
-            "DeepSeek R1",
+            "deepseek/deepseek-v3.2",
+            "DeepSeek V3.2",
             aliases=[],
         )
         qwen_caps = make_capabilities(
-            "qwen/qwen3-235b-a22b-04-28:free",
-            "Qwen3",
+            "moonshotai/kimi-k2.5",
+            "Kimi K2.5",
             aliases=[],
         )
 
@@ -66,8 +66,8 @@ class TestListModelsRestrictions(unittest.TestCase):
             "anthropic/claude-sonnet-4": sonnet_caps,
             "sonnet": sonnet_caps,
             "anthropic/claude-sonnet-4-20240229": sonnet_caps,
-            "deepseek/deepseek-r1-0528:free": deepseek_caps,
-            "qwen/qwen3-235b-a22b-04-28:free": qwen_caps,
+            "deepseek/deepseek-v3.2": deepseek_caps,
+            "moonshotai/kimi-k2.5": qwen_caps,
         }
 
         self.mock_openrouter.get_capabilities.side_effect = self._openrouter_caps_map.__getitem__
@@ -92,7 +92,7 @@ class TestListModelsRestrictions(unittest.TestCase):
         os.environ,
         {
             "OPENROUTER_API_KEY": "test-key",
-            "OPENROUTER_ALLOWED_MODELS": "opus,sonnet,deepseek/deepseek-r1-0528:free,qwen/qwen3-235b-a22b-04-28:free",
+            "OPENROUTER_ALLOWED_MODELS": "opus,sonnet,deepseek/deepseek-v3.2,moonshotai/kimi-k2.5",
             "GEMINI_API_KEY": "gemini-test-key",
         },
     )
@@ -109,8 +109,8 @@ class TestListModelsRestrictions(unittest.TestCase):
         self.mock_openrouter.list_models.return_value = [
             "anthropic/claude-opus-4",  # Has alias "opus"
             "anthropic/claude-sonnet-4",  # Has alias "sonnet"
-            "deepseek/deepseek-r1-0528:free",  # No alias, full name
-            "qwen/qwen3-235b-a22b-04-28:free",  # No alias, full name
+            "deepseek/deepseek-v3.2",  # No alias, full name
+            "moonshotai/kimi-k2.5",  # No alias, full name
         ]
 
         # Mock registry instance
@@ -133,13 +133,13 @@ class TestListModelsRestrictions(unittest.TestCase):
                 return config
             elif "deepseek" in model_name.lower():
                 config = MagicMock()
-                config.model_name = "deepseek/deepseek-r1-0528:free"
+                config.model_name = "deepseek/deepseek-v3.2"
                 config.context_window = 100000
                 config.get_effective_capability_rank.return_value = 70
                 return config
-            elif "qwen" in model_name.lower():
+            elif "kimi" in model_name.lower():
                 config = MagicMock()
-                config.model_name = "qwen/qwen3-235b-a22b-04-28:free"
+                config.model_name = "moonshotai/kimi-k2.5"
                 config.context_window = 100000
                 config.get_effective_capability_rank.return_value = 60
                 return config
@@ -166,8 +166,8 @@ class TestListModelsRestrictions(unittest.TestCase):
             "gemini-2.5-pro": ProviderType.GOOGLE,
             "anthropic/claude-opus-4-20240229": ProviderType.OPENROUTER,
             "anthropic/claude-sonnet-4-20240229": ProviderType.OPENROUTER,
-            "deepseek/deepseek-r1-0528:free": ProviderType.OPENROUTER,
-            "qwen/qwen3-235b-a22b-04-28:free": ProviderType.OPENROUTER,
+            "deepseek/deepseek-v3.2": ProviderType.OPENROUTER,
+            "moonshotai/kimi-k2.5": ProviderType.OPENROUTER,
         }
 
         # Mock restriction service
@@ -176,8 +176,8 @@ class TestListModelsRestrictions(unittest.TestCase):
         mock_restriction_service.get_allowed_models.return_value = {
             "opus",
             "sonnet",
-            "deepseek/deepseek-r1-0528:free",
-            "qwen/qwen3-235b-a22b-04-28:free",
+            "deepseek/deepseek-v3.2",
+            "moonshotai/kimi-k2.5",
         }
         mock_get_restriction.return_value = mock_restriction_service
 

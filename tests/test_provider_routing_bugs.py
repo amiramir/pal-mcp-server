@@ -53,8 +53,8 @@ class TestProviderRoutingBugs:
         CRITICAL BUG TEST: Reproduce the bug where fallback logic auto-registers
         Google provider for 'flash' model without checking GEMINI_API_KEY.
 
-        Scenario: User has only OPENROUTER_API_KEY, requests 'flash' model.
-        Bug: System incorrectly uses Google provider instead of OpenRouter.
+        Scenario: User has only OPENROUTER_API_KEY, requests 'pro' model.
+        Bug: System incorrectly uses native provider instead of OpenRouter.
         """
         # Save original environment
         original_env = {}
@@ -83,18 +83,18 @@ class TestProviderRoutingBugs:
             # Create tool to test fallback logic
             tool = ChatTool()
 
-            # Test: Request 'flash' model - should use OpenRouter, not auto-register Google
-            provider = tool.get_model_provider("flash")
+            # Test: Request 'pro' model - should use OpenRouter, not auto-register Google
+            provider = tool.get_model_provider("pro")
 
             # ASSERTION: Should get OpenRouter provider, not Google
-            assert provider is not None, "Should find a provider for 'flash' model"
+            assert provider is not None, "Should find a provider for 'pro' model"
             assert provider.get_provider_type() == ProviderType.OPENROUTER, (
-                f"Expected OpenRouter provider for 'flash' model with only OPENROUTER_API_KEY set, "
+                f"Expected OpenRouter provider for 'pro' model with only OPENROUTER_API_KEY set, "
                 f"but got {provider.get_provider_type()}"
             )
 
             # Test common aliases that should all route to OpenRouter
-            test_models = ["flash", "pro", "o3", "o4-mini"]
+            test_models = ["pro", "gpt5.4", "grok", "deepseek"]
             for model_name in test_models:
                 provider = tool.get_model_provider(model_name)
                 assert provider is not None, f"Should find provider for '{model_name}'"
@@ -201,15 +201,15 @@ class TestProviderRoutingBugs:
             # Test priority order: Native APIs should be preferred over OpenRouter
             # Google models should use Google provider
             flash_provider = tool.get_model_provider("flash")
-            assert (
-                flash_provider.get_provider_type() == ProviderType.GOOGLE
-            ), "When both Google and OpenRouter API keys are available, 'flash' should prefer Google provider"
+            assert flash_provider.get_provider_type() == ProviderType.GOOGLE, (
+                "When both Google and OpenRouter API keys are available, 'flash' should prefer Google provider"
+            )
 
             # OpenAI models should use OpenAI provider
             o3_provider = tool.get_model_provider("o3")
-            assert (
-                o3_provider.get_provider_type() == ProviderType.OPENAI
-            ), "When both OpenAI and OpenRouter API keys are available, 'o3' should prefer OpenAI provider"
+            assert o3_provider.get_provider_type() == ProviderType.OPENAI, (
+                "When both OpenAI and OpenRouter API keys are available, 'o3' should prefer OpenAI provider"
+            )
 
         finally:
             # Restore original environment
@@ -269,7 +269,7 @@ class TestOpenRouterAliasRestrictions:
             os.environ.pop("OPENAI_API_KEY", None)
             os.environ.pop("XAI_API_KEY", None)
             os.environ["OPENROUTER_API_KEY"] = "test-key"
-            os.environ["OPENROUTER_ALLOWED_MODELS"] = "pro,gpt5,flash,o4-mini,o3"  # User's exact config
+            os.environ["OPENROUTER_ALLOWED_MODELS"] = "pro,gpt5.4,deepseek,grok,kimi"  # User's exact config
 
             # Register OpenRouter provider
             from providers.openrouter import OpenRouterProvider
@@ -287,12 +287,12 @@ class TestOpenRouterAliasRestrictions:
 
             # Expected aliases that should resolve to models:
             # pro -> google/gemini-3.1-pro-preview
-            # gpt5 -> openai/gpt-5
-            # flash -> google/gemini-3-flash-preview
-            # o4-mini -> openai/o4-mini
-            # o3 -> openai/o3
+            # gpt5.4 -> openai/gpt-5.4
+            # deepseek -> deepseek/deepseek-v3.2
+            # grok -> x-ai/grok-4
+            # kimi -> moonshotai/kimi-k2.5
 
-            expected_models = {"pro", "gpt5", "flash", "o4-mini", "o3"}
+            expected_models = {"pro", "gpt5.4", "deepseek", "grok", "kimi"}
 
             available_model_names = set(available_models.keys())
 
@@ -305,8 +305,7 @@ class TestOpenRouterAliasRestrictions:
             # Check that expected models are present
             missing_models = expected_models - available_model_names
             assert len(missing_models) == 0, (
-                f"Missing expected models from alias restrictions: {missing_models}. "
-                f"Available: {available_model_names}"
+                f"Missing expected models from alias restrictions: {missing_models}. Available: {available_model_names}"
             )
 
         finally:
@@ -337,7 +336,7 @@ class TestOpenRouterAliasRestrictions:
             os.environ.pop("OPENAI_API_KEY", None)
             os.environ.pop("XAI_API_KEY", None)
             os.environ["OPENROUTER_API_KEY"] = "test-key"
-            os.environ["OPENROUTER_ALLOWED_MODELS"] = "o4-mini,anthropic/claude-opus-4-6,flash"
+            os.environ["OPENROUTER_ALLOWED_MODELS"] = "gpt5.4,anthropic/claude-opus-4-6,pro"
 
             # Register OpenRouter provider
             from providers.openrouter import OpenRouterProvider
@@ -348,18 +347,18 @@ class TestOpenRouterAliasRestrictions:
             available_models = ModelProviderRegistry.get_available_models(respect_restrictions=True)
 
             expected_models = {
-                "o4-mini",  # alias
-                "openai/o4-mini",  # canonical
+                "gpt5.4",  # alias
+                "openai/gpt-5.4",  # canonical
                 "anthropic/claude-opus-4-6",  # full name
-                "flash",  # alias
-                "google/gemini-3-flash-preview",  # canonical (flash now points to Gemini 3 Flash)
+                "pro",  # alias
+                "google/gemini-3.1-pro-preview",  # canonical
             }
 
             available_model_names = set(available_models.keys())
 
-            assert (
-                available_model_names == expected_models
-            ), f"Expected models {expected_models}, got {available_model_names}"
+            assert available_model_names == expected_models, (
+                f"Expected models {expected_models}, got {available_model_names}"
+            )
 
         finally:
             # Restore original environment

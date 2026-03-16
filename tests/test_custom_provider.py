@@ -87,9 +87,9 @@ class TestCustomProvider:
         provider = CustomProvider(api_key="test-key", base_url="http://localhost:11434/v1")
 
         # Test that aliases resolve properly
-        # "deepseek" resolves to "deepseek/deepseek-r1-0528" (the OpenRouter model)
+        # "deepseek" resolves to "deepseek/deepseek-v3.2" (the OpenRouter model)
         resolved = provider._resolve_model_name("deepseek")
-        assert resolved == "deepseek/deepseek-r1-0528"
+        assert resolved == "deepseek/deepseek-v3.2"
 
         # Test local model alias
         resolved_local = provider._resolve_model_name("local-llama")

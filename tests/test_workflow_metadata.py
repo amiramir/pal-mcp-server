@@ -77,7 +77,7 @@ class TestWorkflowMetadata:
             # Create mock model context like server.py does
             from utils.model_context import ModelContext
 
-            model_name = "flash"
+            model_name = "pro"
             model_context = ModelContext(model_name)
 
             # Create arguments with model context (like server.py provides)
@@ -285,7 +285,7 @@ class TestWorkflowMetadata:
             # Create mock model context
             from utils.model_context import ModelContext
 
-            model_name = "flash"
+            model_name = "pro"
             model_context = ModelContext(model_name)
 
             # Create arguments for intermediate step

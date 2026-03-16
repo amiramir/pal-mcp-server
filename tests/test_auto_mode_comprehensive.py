@@ -475,10 +475,9 @@ class TestAutoModeComprehensive:
             # Mock OpenRouter registry to return known models
             mock_registry = MagicMock()
             mock_registry.list_models.return_value = [
-                "google/gemini-3-flash-preview",
                 "google/gemini-3.1-pro-preview",
-                "openai/o3",
-                "openai/o4-mini",
+                "openai/gpt-5.4",
+                "deepseek/deepseek-v3.2",
                 "anthropic/claude-opus-4-6",
             ]
 
@@ -529,7 +528,7 @@ class TestAutoModeComprehensive:
             mock_response.model_name = "gemini-3-flash-preview"  # The resolved name (flash now points to Gemini 3)
             mock_response.usage = {"input_tokens": 10, "output_tokens": 5}
             # Mock _resolve_model_name to simulate alias resolution (flash -> gemini-3-flash-preview)
-            mock_provider._resolve_model_name = lambda alias: ("gemini-3-flash-preview" if alias == "flash" else alias)
+            mock_provider._resolve_model_name = lambda alias: "gemini-3-flash-preview" if alias == "flash" else alias
             mock_provider.generate_content.return_value = mock_response
 
             with patch.object(ModelProviderRegistry, "get_provider_for_model", return_value=mock_provider):

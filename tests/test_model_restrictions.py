@@ -25,7 +25,7 @@ class TestModelRestrictionService:
             assert service.is_allowed(ProviderType.GOOGLE, "gemini-2.5-pro")
             assert service.is_allowed(ProviderType.GOOGLE, "gemini-2.5-flash")
             assert service.is_allowed(ProviderType.OPENROUTER, "anthropic/claude-opus-4")
-            assert service.is_allowed(ProviderType.OPENROUTER, "openai/o3")
+            assert service.is_allowed(ProviderType.OPENROUTER, "openai/gpt-5.4")
 
             # Should have no restrictions
             assert not service.has_restrictions(ProviderType.OPENAI)

@@ -33,7 +33,7 @@ class MockOpenRouterProvider(OpenAICompatibleProvider):
         return True
 
     def list_models(self, **kwargs):
-        return ["openai/gpt-5-pro", "openai/gpt-5.1-codex"]
+        return ["openai/gpt-5.4", "anthropic/claude-sonnet-4-6"]
 
 
 class MockOpenAIProvider(OpenAICompatibleProvider):
@@ -53,7 +53,7 @@ class MockOpenAIProvider(OpenAICompatibleProvider):
         return True
 
     def list_models(self, **kwargs):
-        return ["gpt-5-pro", "gpt-5.1-codex"]
+        return ["gpt-5.4", "gpt-5.1-codex"]
 
 
 class TestStoreParameterHandling(unittest.TestCase):
@@ -93,7 +93,7 @@ class TestStoreParameterHandling(unittest.TestCase):
 
             # Call the method that builds completion_params
             provider._generate_with_responses_endpoint(
-                model_name="openai/gpt-5-pro",
+                model_name="openai/gpt-5.4",
                 messages=[{"role": "user", "content": "test"}],
                 temperature=0.7,
             )
@@ -131,7 +131,7 @@ class TestStoreParameterHandling(unittest.TestCase):
 
             # Call the method that builds completion_params
             provider._generate_with_responses_endpoint(
-                model_name="gpt-5-pro",
+                model_name="gpt-5.4",
                 messages=[{"role": "user", "content": "test"}],
                 temperature=0.7,
             )
