@@ -53,7 +53,7 @@ class TestListModelsRestrictions(unittest.TestCase):
             "DeepSeek V3.2",
             aliases=[],
         )
-        qwen_caps = make_capabilities(
+        kimi_caps = make_capabilities(
             "moonshotai/kimi-k2.5",
             "Kimi K2.5",
             aliases=[],
@@ -67,7 +67,7 @@ class TestListModelsRestrictions(unittest.TestCase):
             "sonnet": sonnet_caps,
             "anthropic/claude-sonnet-4-20240229": sonnet_caps,
             "deepseek/deepseek-v3.2": deepseek_caps,
-            "moonshotai/kimi-k2.5": qwen_caps,
+            "moonshotai/kimi-k2.5": kimi_caps,
         }
 
         self.mock_openrouter.get_capabilities.side_effect = self._openrouter_caps_map.__getitem__

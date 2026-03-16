@@ -51,7 +51,7 @@ class TestProviderRoutingBugs:
     def test_fallback_routing_bug_reproduction(self):
         """
         CRITICAL BUG TEST: Reproduce the bug where fallback logic auto-registers
-        Google provider for 'flash' model without checking GEMINI_API_KEY.
+        a native provider without checking API keys.
 
         Scenario: User has only OPENROUTER_API_KEY, requests 'pro' model.
         Bug: System incorrectly uses native provider instead of OpenRouter.
