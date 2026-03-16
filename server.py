@@ -23,6 +23,7 @@ import atexit
 import logging
 import os
 import sys
+import threading
 import time
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
@@ -1564,8 +1565,27 @@ async def _run_sse(host: str, port: int, init_options):
     await uvicorn.Server(config).serve()
 
 
+def _start_parent_watchdog():
+    """Exit if the parent process (Claude Code) dies.
+
+    On macOS/Linux, getppid() returns 1 (launchd/init) when the parent exits.
+    This prevents zombie MCP server processes from accumulating.
+    """
+    parent_pid = os.getppid()
+
+    def _watch():
+        while True:
+            time.sleep(30)
+            if os.getppid() != parent_pid:
+                os._exit(0)
+
+    t = threading.Thread(target=_watch, daemon=True)
+    t.start()
+
+
 def run():
     """Console script entry point for pal-mcp-server."""
+    _start_parent_watchdog()
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
